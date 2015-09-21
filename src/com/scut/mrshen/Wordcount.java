@@ -14,18 +14,25 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class Wordcount {
-
+	
 	public static class wcMapper extends Mapper<Object, Text, Text, IntWritable> {
 		private static final IntWritable one = new IntWritable(1);
+		private Text word = new Text();
+		private String patten = "[^\\w]";	// character neither letter nor number
 		@Override
 		protected void map(Object key, Text value,
 				Mapper<Object, Text, Text, IntWritable>.Context context)
 				throws IOException, InterruptedException {
 			// TODO Auto-generated method stub
 //			super.map(key, value, context);
-			StringTokenizer tokens = new StringTokenizer(value.toString().trim());
+			String line = value.toString().trim()
+							   .toLowerCase() // transform all the word into lowercase
+							   .replaceAll(patten, " ");	// replace with blank
+			StringTokenizer tokens = new StringTokenizer(line);
 			while(tokens.hasMoreTokens()) {
-				context.write(new Text(tokens.nextToken()), one);
+				word.set(tokens.nextToken());
+				System.out.println(word.toString());
+				context.write(word, one);
 			}
 		}
 		
